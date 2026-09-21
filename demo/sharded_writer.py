@@ -22,12 +22,12 @@ DURATION_SECONDS = int(sys.argv[1]) if len(sys.argv) > 1 else 20
 WORKERS = int(sys.argv[2]) if len(sys.argv) > 2 else 40
 
 counts = {"ok": 0, "throttled": 0}
+errors = []
 lock = threading.Lock()
 stop_at = 0.0
 
 
-def worker():
-    table = get_table()
+def worker(table):
     while time.time() < stop_at:
         pk = f"device#{random.randint(0, 9999)}"
         try:
@@ -42,15 +42,18 @@ def worker():
                 with lock:
                     counts["throttled"] += 1
             else:
-                raise
+                with lock:
+                    errors.append(str(e))
+                return
 
 
 def main():
     global stop_at
     print(f"== sharded_writer: partition key de alta cardinalidad (device#0-9999)  {WORKERS} workers  {DURATION_SECONDS}s ==")
+    table = get_table()  # un solo cliente compartido: crear uno por thread serializa el arranque bajo el GIL
     start = time.time()
     stop_at = start + DURATION_SECONDS
-    threads = [threading.Thread(target=worker, daemon=True) for _ in range(WORKERS)]
+    threads = [threading.Thread(target=worker, args=(table,), daemon=True) for _ in range(WORKERS)]
     for t in threads:
         t.start()
     while time.time() < stop_at:
@@ -66,6 +69,8 @@ def main():
     total = ok + throttled
     pct = (100 * throttled / total) if total else 0
     print(f"== resultado final: ok={ok}  throttled={throttled}  ({pct:.1f}% de escrituras throttled) ==")
+    if errors:
+        print(f"== {len(errors)} workers murieron por un error no esperado (no throttling), ejemplo: {errors[0]}")
 
 
 if __name__ == "__main__":
