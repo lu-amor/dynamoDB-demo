@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Escribe ítems muy rápido usando UNA sola partition key fija.
+"""
+Escribe ítems muy rápido usando UNA sola partition key fija.
 
-Correr esto con la tabla en la capacidad de sharding (scale_up_for_sharding.sh,
-2000 WCU / 2 particiones). Toda la carga cae en una única partición, así que
-debería superar su cuota y producir ProvisionedThroughputExceededException
-("throttled") en vivo.
+Al correr esto con la tabla en capacidad de sharding (después del escalado) toda la carga
+cae en la misma partición por la mala elección de la partition key.
 
 Uso: python hot_key_writer.py [duracion_segundos] [workers]
 """
@@ -49,7 +48,7 @@ def worker(table):
 def main():
     global stop_at
     print(f"== hot_key_writer: pk fija='{FIXED_PK}'  {WORKERS} workers  {DURATION_SECONDS}s ==")
-    table = get_table()  # un solo cliente compartido: crear uno por thread serializa el arranque bajo el GIL
+    table = get_table()
     start = time.time()
     stop_at = start + DURATION_SECONDS
     threads = [threading.Thread(target=worker, args=(table,), daemon=True) for _ in range(WORKERS)]

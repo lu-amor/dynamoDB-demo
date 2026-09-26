@@ -1,43 +1,24 @@
-# Guion del demo de DynamoDB — Unidad 3 (NoSQL)
+# Demo DynamoDB
 
-Este documento reemplaza las diapositivas: es el guion que sigues en vivo,
-comando por comando, con qué decir en cada parte. Cubre los 4 temas pedidos:
-**sharding, buenas prácticas, escalamiento y aplicación en big data**.
+## 0. Instalación
 
-## 0. Antes del día de la presentación
-
-1. Instalar boto3 en el venv del curso:
+1. Crear un venv e instalar los requerimientos:
    ```bash
-   cd "big data"
-   ./venv/bin/pip install -r "unidad 3 — NoSQL/dynamodb-demo/requirements.txt"
+   python3 -m venv venv
+   ./venv/bin/pip install -r "./requirements.txt"
    ```
-2. Confirmar que la AWS CLI ya tiene credenciales configuradas:
+2. Confirmar que la AWS CLI ya tiene credenciales configuradas (configurarlas en caso de no tenerlas):
    ```bash
    aws sts get-caller-identity
    ```
-3. **Hacer un ensayo completo** siguiendo todo este runbook de principio a
-   fin (incluyendo el teardown) al menos una vez antes de presentar. Esto:
-   - Confirma que el throttling del hot key se ve de forma confiable con tu
-     conexión (si no throttlea lo suficiente, sube `WORKERS` en
-     `hot_key_writer.py`/`sharded_writer.py`; si throttlea demasiado incluso
-     con key repartida, baja `WORKERS`).
-   - Confirma que Application Auto Scaling realmente dispara en un tiempo
-     razonable (normalmente unos minutos después de sostener carga por
-     encima del 70% del baseline).
-   - Te deja con los tiempos reales para calcular cuánto durará cada sección
-     el día de la presentación.
-4. Activar todos los scripts de `infra/` como ejecutables una sola vez:
+3. Habilitar ejecución para los scripts de `infra/`:
    ```bash
-   chmod +x "unidad 3 — NoSQL/dynamodb-demo/infra/"*.sh
+   chmod +x "./infra/"*.sh
    ```
 
-## 1. Costo — cuánto vas a gastar
+## 1. Costo
 
-Precios oficiales de DynamoDB Provisioned en `us-east-1` (confirmados en la
-página de pricing de AWS): **WCU = $0.00065/hora**, **RCU = $0.00013/hora**.
-El billing es por capacidad *provisionada* por hora, no por request — o sea
-que "martillar" la tabla con tráfico no cuesta más, solo cuesta la capacidad
-que tengas asignada en cada momento.
+Se eligió la modalidad de billing por capacidad provisionada por hora, no por request.
 
 | Fase | Capacidad | Duración estimada | Costo |
 |---|---|---|---|

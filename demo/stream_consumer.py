@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
-"""Lee el DynamoDB Stream de la tabla en vivo e imprime los cambios.
-
-Ilustra el patrón real usado para alimentar pipelines de big data:
-DynamoDB Streams -> (Kinesis Data Streams / Firehose) -> S3 data lake ->
-Athena / EMR / Glue para analítica batch. Aquí solo leemos el stream
-directamente para no tener que desplegar (ni limpiar) esos servicios extra.
+"""
+Lee el DynamoDB Stream de la tabla en vivo e imprime los cambios.
+Esto podría utilizarse como input para pipelines de big data, viendo los cambios en la tabla en tiempo real
+(por ejemplo recibiendo todos los nuevos petidos que llegan a la tabla).
 
 Uso: python stream_consumer.py
-Mientras corre, escribe/actualiza/borra ítems en la tabla desde otra
-terminal (por ejemplo con hot_key_writer.py o sharded_writer.py) para ver
-los eventos aparecer aquí en vivo.
+Mientras corre, realizar ABM en la tabla para ver cómo aparecen los eventos.
 """
 import time
 
@@ -39,7 +35,6 @@ def main():
         )["ShardIterator"]
         iterators.append(it)
 
-    print("Escribe/actualiza/borra ítems en la tabla desde otra terminal para ver eventos aquí.")
     print("Ctrl+C para salir.\n")
 
     try:
@@ -56,7 +51,6 @@ def main():
             iterators = next_iterators
             time.sleep(1)
     except KeyboardInterrupt:
-        print("\nCerrando consumer.")
 
 
 if __name__ == "__main__":

@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
-"""Genera carga sostenida por encima del baseline para disparar Application
-Auto Scaling.
+"""
+Genera carga sostenida por encima del baseline para disparar Application Auto Scaling.
 
-Correr esto con la tabla en su capacidad BASELINE (5/5), NO durante la
-ventana de sharding (scale_down.sh primero). Mientras corre, muestra en la
-consola de AWS (DynamoDB > tabla > Monitor, o CloudWatch) cómo
-ConsumedWriteCapacityUnits sube y, unos minutos después, cómo la capacidad
-provisionada reacciona sola.
+Correr esto con la tabla en su capacidad BASELINE, no durante la ventana de sharding (ejecutar scale_down.sh primero).
 
 Uso: python autoscale_load.py [duracion_segundos] [writes_por_segundo_objetivo]
 """

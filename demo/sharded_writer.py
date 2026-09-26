@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
-"""Misma carga que hot_key_writer.py pero con partition key de alta cardinalidad.
-
-Al repartirse entre varias particiones, debería throttlear mucho menos (o nada)
-comparado con hot_key_writer.py corriendo la misma cantidad de tiempo/workers.
-Esa comparación en vivo es la prueba de que la partition key determina cómo
-se reparten físicamente los datos.
+"""
+Se usa la misma carga que hot_key_writer.py pero con partition key de alta cardinalidad, 
+lo que permite que se realice sharding entre las particions.
 
 Uso: python sharded_writer.py [duracion_segundos] [workers]
 """
@@ -50,7 +47,7 @@ def worker(table):
 def main():
     global stop_at
     print(f"== sharded_writer: partition key de alta cardinalidad (device#0-9999)  {WORKERS} workers  {DURATION_SECONDS}s ==")
-    table = get_table()  # un solo cliente compartido: crear uno por thread serializa el arranque bajo el GIL
+    table = get_table()
     start = time.time()
     stop_at = start + DURATION_SECONDS
     threads = [threading.Thread(target=worker, args=(table,), daemon=True) for _ in range(WORKERS)]
